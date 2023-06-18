@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+		<script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+		<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+		<script type="text/javascript">
+			//Converting non mage age to mage seen age
+			const calculateAge = (age) => {
+				if(age > 100) return ((1/2) * age + 20).toFixed(2);
+				if(age > 40 && age <= 100) return ((2/3) * age + (10/3)).toFixed(2);
+				if(age > 20 && age <= 40) return ((1/2) * age + 10).toFixed(2);
+				return age.toFixed(2);
+			}
+
+			//This method calculates your exact age based on given birthday
+			const getAge = (birthday) => {
+				const today = new Date();
+				if(birthday > today) {
+					return;
+				}
+				const diffInTime = Math.abs(today - birthday);
+				let diffInDays = Math.ceil(diffInTime / (1000 * 60* 60* 24));
+				
+				let ageYears = 0;
+				for(y = birthday.getFullYear() + 1; y < today.getFullYear(); y++) {
+					diffInDays = y % 4 == 0 ? diffInDays - 366 : diffInDays - 365;
+					ageYears++;
+				}
+				const ageDaysPercent = today.getFullYear() % 4 == 0 ? diffInDays / 366 : diffInDays / 365;
+				return ageYears + ageDaysPercent;
+			}
+
+			//Initializing UI components
+			const initializeComponents = () => {
+				$("#age-input").datepicker({maxDate: '0', dateFormat: 'yy.mm.dd'});
+			}
+
+			//JQuery work on page load
+			$(document).ready(() => {
+				initializeComponents();
+				$("#submit").click(() => {
+					try {
+						const date = $("#age-input").datepicker('getDate');
+						const age = getAge(date);
+						$("#real-age").text(age.toFixed(2));
+						$("#age-display").text(calculateAge(age));
+						$("#date-error").addClass("hidden");
+						$("#result-p, #age-p").removeClass("hidden");
+					}
+					catch {
+						$("#result-p, #age-p").addClass("hidden");
+						$("#date-error").removeClass("hidden");
+					}
+				});
+			});
+		</script>
+		
+		<style type="text/css">
+			body, #submit, #age-input {
+				font-size: 32px;
+			}
+			.hidden {
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<span>Add meg a mágus karaktered születési dátumát: </span>
+		<input id="age-input" type="text" placeholder="éééé.hh.nn"/>
+		<button id="submit">OK</button>
+		<p id="age-p" class="hidden">A karaktered életkora: <b id="real-age"></b> év</p>
+		<p id="result-p" class="hidden">A karaktered talan években látható kora: <b id="age-display"></b> év</p>
+		<p id="date-error" class="hidden">A születési dátum nem lehet nagyobb a mai dátumnál.</p>
+	</body>
+</html>
